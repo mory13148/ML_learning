@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Practical Exam — Iris Classification & Linear Regression</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --card: #161822;
+    --card-border: #2a2d3a;
+    --accent: #c9a84c;
+    --accent-dim: rgba(201,168,76,0.12);
+    --accent2: #6fa4c7;
+    --accent2-dim: rgba(111,164,199,0.12);
+    --text: #e2e4ea;
+    --text-dim: #7a7e8f;
+    --text-mid: #a8abbe;
+    --tag-bg: #1e2030;
+    --code-bg: #111318;
+    --hint-bg: rgba(111,164,199,0.07);
+    --hint-border: rgba(111,164,199,0.25);
+    --story-bg: rgba(201,168,76,0.05);
+    --story-border: rgba(201,168,76,0.22);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    min-height: 100vh;
+    padding: 60px 24px 100px;
+  }
+
+  /* ─── WRAPPER ─── */
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .header .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .header h1 em { font-style: italic; color: var(--accent); }
+  .header .sub {
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 300;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  /* ─── META ROW ─── */
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 52px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .meta-item .icon { font-size: 16px; }
+  .meta-item strong { color: var(--text-mid); font-weight: 500; }
+
+  /* ─── SECTION DIVIDER ─── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 52px 0 20px;
+  }
+  .section-label .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent);
+    opacity: 0.35;
+    line-height: 1;
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+  .section-label .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 32px 34px;
+    margin-bottom: 22px;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .card .points {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 18px;
+    display: inline-block;
+    background: var(--accent-dim);
+    padding: 2px 9px;
+    border-radius: 12px;
+  }
+  .card p { color: var(--text-mid); margin-bottom: 14px; }
+
+  /* ─── STORY BOX ─── */
+  .story {
+    background: var(--story-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    border-top: 1px solid var(--story-border);
+    border-right: 1px solid var(--story-border);
+    border-bottom: 1px solid var(--story-border);
+    padding: 20px 24px;
+    margin: 18px 0 22px;
+  }
+  .story .story-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .story p { color: var(--text-mid); margin-bottom: 8px; font-style: italic; }
+  .story p:last-child { margin-bottom: 0; }
+
+  /* ─── HINT BOX ─── */
+  .hint {
+    background: var(--hint-bg);
+    border: 1px solid var(--hint-border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+  .hint .hint-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 5px;
+  }
+  .hint p { color: var(--text-mid); margin-bottom: 0; font-size: 14px; }
+
+  /* ─── TASK LIST ─── */
+  .task-list { list-style: none; margin: 16px 0; }
+  .task-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-mid);
+  }
+  .task-list li:last-child { border-bottom: none; }
+  .task-list .bullet {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border: 2px solid var(--card-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .task-list .task-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── CODE BLOCK ─── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .code-block pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-mid);
+    white-space: pre;
+  }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .st { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .nm { color: #e2e4ea; }
+  .op { color: #89ddff; }
+  .nu { color: #f78c6c; }
+
+  /* ─── FORMULA DISPLAY ─── */
+  .formula {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin: 14px 0;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── DATA TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .data-table th {
+    background: rgba(255,255,255,0.04);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .data-table td {
+    padding: 9px 14px;
+    color: var(--text-mid);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ─── RUBRIC ─── */
+  .rubric {
+    margin-top: 28px;
+  }
+  .rubric .rubric-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .rubric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .rubric-row:last-child { border-bottom: none; }
+  .rubric-row .r-label { color: var(--text-mid); font-size: 14px; }
+  .rubric-row .r-pts {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 10px;
+    border-radius: 12px;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 1px solid var(--card-border);
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    body { padding: 40px 16px 80px; }
+    .header h1 { font-size: 28px; }
+    .card { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <div class="header">
+    <div class="label">Practical Examination</div>
+    <h1>Artificial Intelligence<br><em>From Scratch</em></h1>
+    <p class="sub">Build neural networks and regression models by implementing every component yourself — no black-box libraries allowed.</p>
+  </div>
+
+  <!-- META -->
+  <div class="meta-row">
+    <div class="meta-item"><span class="icon">⏱</span> <strong>Duration:</strong> 3 hours</div>
+    <div class="meta-item"><span class="icon">📦</span> <strong>Tools:</strong> Python, NumPy only</div>
+    <div class="meta-item"><span class="icon">📝</span> <strong>Total:</strong> 100 points</div>
+  </div>
+
+  <!-- ═══ GENERAL RULES ═══ -->
+  <div class="card" style="border-color: var(--story-border); background: var(--story-bg);">
+    <h2 style="font-size:17px; margin-bottom:10px;">📋 General Rules</h2>
+    <p style="margin-bottom:6px;">• You may <strong style="color:#fff">only</strong> use <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;">Python</code> and <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;">NumPy</code>. No scikit-learn, TensorFlow, PyTorch or any ML library.</p>
+    <p style="margin-bottom:6px;">• Every function must be <strong style="color:#fff">implemented by you</strong>. Copying a full solution without understanding will result in 0 points.</p>
+    <p style="margin-bottom:6px;">• Include <strong style="color:#fff">comments</strong> in your code explaining your logic. Clarity counts.</p>
+    <p style="margin-bottom:0;">• Submit a single <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;">.py</code> file per exercise.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EXERCISE 1 — NEURAL NETWORK CLASSIFICATION      -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-label">
+    <span class="num">01</span>
+    <div class="line"></div>
+    <span class="tag">Neural Network · 60 pts</span>
+  </div>
+
+  <div class="card">
+    <h2>🌸 Operation: Iris</h2>
+    <span class="points">60 Points</span>
+
+    <!-- STORY -->
+    <div class="story">
+      <div class="story-label">📖 Mission Briefing</div>
+      <p>
+        Deep in the mountains of a remote research station, a botanist named <strong style="color:var(--text);">Dr. Elena Voss</strong>
+        has discovered three rare species of flowers that look almost identical to the naked eye.
+        Misidentifying even one specimen could lead to an ecological disaster — one species is a
+        keystone pollinator, another is mildly toxic, and the third is endangered and protected by law.
+      </p>
+      <p>
+        Dr. Voss has spent years collecting measurements — <strong style="color:var(--text);">sepal length, sepal width,
+        petal length, and petal width</strong> — for hundreds of flowers, carefully labelling each one.
+        Now she needs a machine to do the classification for her, because the next expedition
+        leaves in hours and she won't be there to watch.
+      </p>
+      <p>
+        <strong style="color:var(--text);">Your job:</strong> build a neural network — entirely from scratch — that
+        Dr. Voss can trust with her flowers. No black boxes. She wants to see every calculation laid bare.
+      </p>
+    </div>
+
+    <p>You will use the classic <strong style="color:#fff">Iris dataset</strong> (150 samples, 4 features, 3 classes).
+    A ready-to-load version is provided below. Your network must reach <strong style="color:var(--accent)">≥ 90% accuracy</strong> on a held-out test set.</p>
+
+    <!-- DATA SNIPPET -->
+    <div class="code-block">
+      <div class="code-label">📂 data_loader.py — provided starter</div>
+      <pre><span class="kw">import</span> <span class="nm">numpy</span> <span class="kw">as</span> <span class="nm">np</span>
+<span class="kw">from</span> <span class="nm">sklearn.datasets</span> <span class="kw">import</span> <span class="fn">load_iris</span>   <span class="cm"># only allowed import for DATA loading</span>
+
+<span class="kw">def</span> <span class="fn">get_data</span>(<span class="nm">test_ratio</span><span class="op">=</span><span class="nu">0.2</span>, <span class="nm">seed</span><span class="op">=</span><span class="nu">42</span>):
+    <span class="nm">iris</span> <span class="op">=</span> <span class="fn">load_iris</span>()
+    <span class="nm">X</span>, <span class="nm">y</span> <span class="op">=</span> <span class="nm">iris</span>.<span class="nm">data</span>, <span class="nm">iris</span>.<span class="nm">target</span>
+    <span class="cm"># shuffle</span>
+    <span class="nm">rng</span> <span class="op">=</span> <span class="nm">np</span>.<span class="nm">random</span>.<span class="fn">default_rng</span>(<span class="nm">seed</span>)
+    <span class="nm">idx</span> <span class="op">=</span> <span class="nm">rng</span>.<span class="fn">permutation</span>(<span class="fn">len</span>(<span class="nm">X</span>))
+    <span class="nm">X</span>, <span class="nm">y</span> <span class="op">=</span> <span class="nm">X</span>[<span class="nm">idx</span>], <span class="nm">y</span>[<span class="nm">idx</span>]
+    <span class="cm"># split</span>
+    <span class="nm">n</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">len</span>(<span class="nm">X</span>) <span class="op">*</span> ((<span class="nu">1</span> <span class="op">-</span> <span class="nm">test_ratio</span>)))
+    <span class="kw">return</span> <span class="nm">X</span>[:<span class="nm">n</span>], <span class="nm">X</span>[<span class="nm">n</span>:], <span class="nm">y</span>[:<span class="nm">n</span>], <span class="nm">y</span>[<span class="nm">n</span>:]</pre>
+    </div>
+
+    <!-- TASKS -->
+    <p style="margin-top:24px; color:#fff; font-weight:500; font-size:15px;">Your Tasks</p>
+    <ul class="task-list">
+      <li>
+        <span class="bullet">1</span>
+        <div class="task-text">
+          <strong>Activation Functions</strong><br>
+          Implement <em>ReLU</em> and <em>Softmax</em> from scratch as classes with <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">forward()</code> and <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">backward()</code> methods.
+          Remember: Softmax must be numerically stable (subtract max before exp).
+        </div>
+      </li>
+      <li>
+        <span class="bullet">2</span>
+        <div class="task-text">
+          <strong>Aggregation (Dense Layer)</strong><br>
+          Implement a fully-connected layer that computes
+          <strong style="color:var(--accent);">z = X · W + b</strong>.
+          Store weights <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">W</code> and bias <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">b</code> as instance variables. Initialize W with Xavier / Glorot initialisation.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">3</span>
+        <div class="task-text">
+          <strong>Loss Function</strong><br>
+          Implement <em>Cross-Entropy Loss</em> for multi-class classification.
+          Clip predicted probabilities to avoid <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">log(0)</code>.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">4</span>
+        <div class="task-text">
+          <strong>Backpropagation</strong><br>
+          Derive and implement the gradient flow through each layer:
+          <em>Loss → Softmax → Dense₂ → ReLU → Dense₁</em>.
+          Each layer must return <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">dW</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">db</code>, and <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">dX</code>.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">5</span>
+        <div class="task-text">
+          <strong>Gradient Descent Optimiser</strong><br>
+          Implement vanilla <em>SGD</em> (with an optional momentum extension for bonus credit).
+          Update every weight and bias after each mini-batch.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">6</span>
+        <div class="task-text">
+          <strong>Training Loop & Evaluation</strong><br>
+          Wire everything together. Train for enough epochs to converge.
+          Print training loss every 50 epochs. At the end, print <strong style="color:var(--accent);">test accuracy</strong>.
+          You must reach <strong style="color:var(--accent);">≥ 90 %</strong>.
+        </div>
+      </li>
+    </ul>
+
+    <!-- ARCHITECTURE HINT -->
+    <div class="hint">
+      <div class="hint-label">💡 Suggested Architecture</div>
+      <p>Input (4) → Dense (64 neurons) → ReLU → Dense (32 neurons) → ReLU → Dense (3 neurons) → Softmax.
+      Feel free to tweak layer sizes — but justify your choice in a comment.</p>
+    </div>
+
+    <!-- MATH HINTS -->
+    <div class="hint">
+      <div class="hint-label">📐 Key Formulas to Recall</div>
+      <div class="formula">ReLU(z) = max(0, z)</div>
+      <div class="formula">Softmax(zᵢ) = exp(zᵢ − max(z)) / Σⱼ exp(zⱼ − max(z))</div>
+      <div class="formula">L = − (1/N) Σᵢ Σₖ yᵢₖ · log(ŷᵢₖ + ε)</div>
+      <div class="formula">W ← W − η · dW</div>
+    </div>
+
+    <!-- RUBRIC -->
+    <div class="rubric">
+      <div class="rubric-title">Grading Breakdown</div>
+      <div class="rubric-row"><span class="r-label">Activation functions (ReLU + Softmax) — correct forward & backward</span><span class="r-pts">10 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Dense layer + Xavier initialisation</span><span class="r-pts">8 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Cross-Entropy loss (numerically stable)</span><span class="r-pts">7 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Backpropagation — correct gradients end-to-end</span><span class="r-pts">15 pts</span></div>
+      <div class="rubric-row"><span class="r-label">SGD optimiser (+ 3 bonus for momentum)</span><span class="r-pts">7 pts (+3)</span></div>
+      <div class="rubric-row"><span class="r-label">Full training loop, ≥ 90 % test accuracy</span><span class="r-pts">8 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Code clarity, comments, structure</span><span class="r-pts">5 pts</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- EXERCISE 2 — LINEAR REGRESSION                  -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-label">
+    <span class="num">02</span>
+    <div class="line"></div>
+    <span class="tag">Linear Regression · 40 pts</span>
+  </div>
+
+  <div class="card">
+    <h2>🏠 Project: Greenfield Estates</h2>
+    <span class="points">40 Points</span>
+
+    <!-- STORY -->
+    <div class="story">
+      <div class="story-label">📖 The Scenario</div>
+      <p>
+        A small real-estate firm called <strong style="color:var(--text);">Greenfield Estates</strong> is preparing listings for a new
+        eco-village. They have historical data on nearby houses: size, age, distance to the lake,
+        and the number of solar panels — along with each house's final sale price.
+      </p>
+      <p>
+        The firm's junior analyst quit last week. Her replacement — you — must build a
+        linear regression model <strong style="color:var(--text);">entirely by hand</strong> so the manager (who distrusts
+        "magic libraries") can finally trust the price predictions on the board.
+      </p>
+    </div>
+
+    <!-- DATASET -->
+    <p style="color:#fff; font-weight:500; margin-bottom:10px;">📊 Dataset (provided)</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Sample</th>
+          <th>Size (m²)</th>
+          <th>Age (yrs)</th>
+          <th>Lake Dist (km)</th>
+          <th>Solar Panels</th>
+          <th>Price (k€)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>120</td><td>5</td><td>1.2</td><td>8</td><td>310</td></tr>
+        <tr><td>2</td><td>85</td><td>12</td><td>3.5</td><td>4</td><td>190</td></tr>
+        <tr><td>3</td><td>200</td><td>2</td><td>0.8</td><td>12</td><td>520</td></tr>
+        <tr><td>4</td><td>150</td><td>8</td><td>2.1</td><td>6</td><td>380</td></tr>
+        <tr><td>5</td><td>95</td><td>15</td><td>4.0</td><td>3</td><td>170</td></tr>
+        <tr><td>6</td><td>180</td><td>3</td><td>1.0</td><td>10</td><td>470</td></tr>
+        <tr><td>7</td><td>60</td><td>20</td><td>5.5</td><td>2</td><td>110</td></tr>
+        <tr><td>8</td><td>140</td><td>6</td><td>1.8</td><td>7</td><td>350</td></tr>
+        <tr><td>9</td><td>110</td><td>10</td><td>2.8</td><td>5</td><td>250</td></tr>
+        <tr><td>10</td><td>170</td><td>4</td><td>1.5</td><td>9</td><td>430</td></tr>
+        <tr><td>11</td><td>75</td><td>18</td><td>4.8</td><td>2</td><td>140</td></tr>
+        <tr><td>12</td><td>160</td><td>7</td><td>2.0</td><td>8</td><td>400</td></tr>
+        <tr><td>13</td><td>130</td><td>9</td><td>3.0</td><td>5</td><td>280</td></tr>
+        <tr><td>14</td><td>190</td><td>1</td><td>0.6</td><td>14</td><td>550</td></tr>
+        <tr><td>15</td><td>100</td><td>14</td><td>3.8</td><td>4</td><td>200</td></tr>
+        <tr><td style="color:var(--accent); font-weight:500;">16 ★</td><td>145</td><td>7</td><td>1.9</td><td>7</td><td style="color:var(--accent); font-weight:600;">?</td></tr>
+        <tr><td style="color:var(--accent); font-weight:500;">17 ★</td><td>88</td><td>13</td><td>3.2</td><td>3</td><td style="color:var(--accent); font-weight:600;">?</td></tr>
+        <tr><td style="color:var(--accent); font-weight:500;">18 ★</td><td>210</td><td>2</td><td>0.5</td><td>15</td><td style="color:var(--accent); font-weight:600;">?</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;">★ = test samples. Train on rows 1–15. Predict prices for rows 16–18.</p>
+
+    <!-- TASKS -->
+    <p style="margin-top:24px; color:#fff; font-weight:500; font-size:15px;">Your Tasks</p>
+    <ul class="task-list">
+      <li>
+        <span class="bullet">1</span>
+        <div class="task-text">
+          <strong>Data Pre-processing</strong><br>
+          Standardise (z-score normalise) all four features using <em>only</em> training-set statistics.
+          Apply the same transformation to the test rows. Explain in a comment why this matters.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">2</span>
+        <div class="task-text">
+          <strong>Closed-Form Solution (Normal Equation)</strong><br>
+          Derive and implement <strong style="color:var(--accent);">θ = (XᵀX)⁻¹ Xᵀy</strong>.
+          Don't forget to add the bias column (column of 1s) to X before computing.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">3</span>
+        <div class="task-text">
+          <strong>Gradient Descent Solution</strong><br>
+          Implement the same model using iterative Gradient Descent.
+          Use <em>MSE</em> as the loss. You must show the loss decreasing over iterations
+          (print every 100 steps). Compare the final weights with the Normal Equation weights.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">4</span>
+        <div class="task-text">
+          <strong>Predict & Evaluate</strong><br>
+          Predict the price for samples 16, 17, and 18.
+          Compute <strong style="color:var(--accent)">R²</strong> and <strong style="color:var(--accent)">RMSE</strong> on the training set.
+          Do both methods give close results? Comment on why or why not.
+        </div>
+      </li>
+      <li>
+        <span class="bullet">5</span>
+        <div class="task-text">
+          <strong>Bonus — Feature Importance</strong><br>
+          Which feature contributes most to the predicted price?
+          Justify using the learned coefficients.
+        </div>
+      </li>
+    </ul>
+
+    <!-- FORMULAS -->
+    <div class="hint">
+      <div class="hint-label">📐 Useful Formulas</div>
+      <div class="formula">ŷ = Xθ</div>
+      <div class="formula">MSE = (1/N) · ‖Xθ − y‖²</div>
+      <div class="formula">∂MSE/∂θ = (2/N) · Xᵀ(Xθ − y)</div>
+      <div class="formula">R² = 1 − SS_res / SS_tot</div>
+    </div>
+
+    <!-- RUBRIC -->
+    <div class="rubric">
+      <div class="rubric-title">Grading Breakdown</div>
+      <div class="rubric-row"><span class="r-label">Correct standardisation (train stats only)</span><span class="r-pts">6 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Normal Equation — correct implementation & predictions</span><span class="r-pts">10 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Gradient Descent — convergence proof (loss log) & weights</span><span class="r-pts">10 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Predictions for samples 16-18, R² and RMSE</span><span class="r-pts">7 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Bonus — feature importance analysis</span><span class="r-pts">+3 pts</span></div>
+      <div class="rubric-row"><span class="r-label">Code clarity & comments</span><span class="r-pts">4 pts</span></div>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    <p><strong style="color:var(--text-mid);">Total: 100 points</strong> &nbsp;(+ up to 6 bonus points)<br>
+    Good luck. Trust the math — it won't lie to you.</p>
+  </div>
+
+</div>
+</body>
+</html>
